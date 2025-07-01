@@ -1,49 +1,50 @@
-import type { IRandomUsers } from "@/types/common";
 import { API_PATH } from "@/constants/constants";
-import { useStore } from "@/store/StoreProvider";
-import React, { useEffect, useState } from "react";
+import { useStore, type User } from "@/store/StoreProvider";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
-const RandomUsers = ({
-  setTo,
-}: {
-  setTo: React.Dispatch<React.SetStateAction<IRandomUsers | null>>;
-}) => {
-  const { user } = useStore();
-  const [randomUsers, setRandomUsers] = useState<IRandomUsers[]>([]);
-  const [moreUsersLeft, setMoreUsersLeft] = useState(false);
-  const getRandomUsers = async () => {
-    const res = await fetch(API_PATH + "/user/random-users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        excludingIds: randomUsers.map((randomUser) => randomUser._id),
-      }),
-      credentials: "include",
-    });
+const RandomUsers = () => {
+  const { setStore } = useStore();
 
-    if (res.status === 200) {
+  const [randomUsers, setRandomUsers] = useState<User[]>([]);
+  const [moreUsersLeft, setMoreUsersLeft] = useState(false);
+
+  const getRandomUsers = useCallback(async () => {
+    if (!moreUsersLeft) {
+      const res = await fetch(API_PATH + "/user/random-users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          excludingIds: randomUsers.map((randomUser) => randomUser._id),
+        }),
+        credentials: "include",
+      });
+
       const json: {
-        data: { users: IRandomUsers[]; calc: { remainingUsersCount: number } };
+        data: { users: User[]; calc: { remainingUsersCount: number } };
       } = await res.json();
-      if (json.data.calc.remainingUsersCount === 0) {
-        setMoreUsersLeft(true);
+
+      if (res.status === 200) {
+        if (json.data.calc.remainingUsersCount === 0) {
+          setMoreUsersLeft(true);
+        }
+        setRandomUsers((prevIds) => [...prevIds, ...json.data.users]);
+      } else {
+        console.log(json);
       }
-      setRandomUsers((prevIds) => [...prevIds, ...json.data.users]);
-    } else {
-      alert("Some Error Occured while Fetching Random Users");
     }
-  };
+  }, [moreUsersLeft, randomUsers]);
 
   // get random users
   useEffect(() => {
-    if (user) getRandomUsers();
+    getRandomUsers();
+
     return () => {
       setRandomUsers([]);
     };
-  }, [user]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div>
       <h3 className="font-bold text-xl mb-5">Currently available users</h3>
@@ -54,7 +55,7 @@ const RandomUsers = ({
               id={randomUser._id}
               key={randomUser._id}
               onClick={() => {
-                setTo(randomUser);
+                setStore((value) => ({ ...value, to: randomUser._id }));
               }}
               className="cursor-pointer shadow-xl px-4 py-2 rounded shadow-gray-200"
             >

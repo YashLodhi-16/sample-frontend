@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 
 const Login = () => {
   const { setStore, user } = useStore();
+
   const [email, setEmail] = useState("yashlodhi2006@gmail.com");
   const [password, setPassword] = useState("Yash2006@#$");
 
@@ -24,7 +25,11 @@ const Login = () => {
     });
 
     const json = await res.json();
-    setStore((value) => ({ ...value, user: json.data }));
+    if (res.status === 200) {
+      setStore((value) => ({ ...value, user: json.data }));
+    } else {
+      console.log(json);
+    }
   };
 
   // logout function
@@ -33,14 +38,16 @@ const Login = () => {
       method: "POST",
       credentials: "include",
     });
+
+    const json = await res.json();
     if (res.status !== 200) {
-      alert("Some Error Occured While Logout.");
+      console.log(json);
     } else {
       setStore((value) => ({ ...value, user: null }));
     }
   };
   return (
-    <div className="border border-solid border-gray-400 rounded px-20 py-20">
+    <div className="border border-solid border-gray-400 rounded px-5 py-5">
       {user ? (
         <div className="font-semibold text-lg flex gap-5 items-center justify-center">
           <p className="capitalize">{user.userName}</p>{" "}
@@ -62,7 +69,12 @@ const Login = () => {
             onChange={(e) => {
               setEmail(e.target.value);
             }}
+            list="emails"
           />
+          <datalist id="emails">
+            <option>yashlodhi2006@gmail.com</option>
+            <option>Jessyca45@gmail.com</option>
+          </datalist>
           <Input
             type="text"
             placeholder="password"
@@ -70,7 +82,12 @@ const Login = () => {
             onChange={(e) => {
               setPassword(e.target.value);
             }}
+            list="passwords"
           />
+          <datalist id="passwords">
+            <option>Yash2006@#$</option>
+            <option>qaixf6¬A</option>
+          </datalist>
 
           <Button variant="outline" className="cursor-pointer" type="submit">
             Login
