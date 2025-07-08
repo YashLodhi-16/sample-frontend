@@ -74,6 +74,7 @@ const Login = () => {
           <datalist id="emails">
             <option>yashlodhi2006@gmail.com</option>
             <option>Jessyca45@gmail.com</option>
+            <option>Ladarius_Toy84@gmail.com</option>
           </datalist>
           <Input
             type="text"
@@ -87,6 +88,7 @@ const Login = () => {
           <datalist id="passwords">
             <option>Yash2006@#$</option>
             <option>qaixf6¬A</option>
+            <option>vcvgg6_I</option>
           </datalist>
 
           <Button variant="outline" className="cursor-pointer" type="submit">

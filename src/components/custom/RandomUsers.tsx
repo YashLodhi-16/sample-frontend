@@ -39,10 +39,13 @@ const RandomUsers = () => {
 
   // get random users
   useEffect(() => {
-    getRandomUsers();
+    const timeout = setTimeout(() => {
+      getRandomUsers();
+    }, 100);
 
     return () => {
       setRandomUsers([]);
+      clearTimeout(timeout);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
